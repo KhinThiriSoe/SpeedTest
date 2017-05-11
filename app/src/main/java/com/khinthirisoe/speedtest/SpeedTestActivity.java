@@ -1,105 +1,104 @@
 package com.khinthirisoe.speedtest;
 
+import android.app.DatePickerDialog;
+import android.app.Dialog;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
-import android.widget.LinearLayout;
+import android.widget.DatePicker;
 import android.widget.TextView;
 
-import java.text.DecimalFormat;
-import java.util.ArrayList;
-import java.util.Random;
+import com.khinthirisoe.speedtest.Utils.PrefUtils;
+import com.khinthirisoe.speedtest.database.SpeedDbHelper;
+
+import java.util.Calendar;
+import java.util.Date;
+
+import butterknife.BindView;
+import butterknife.ButterKnife;
 
 public class SpeedTestActivity extends AppCompatActivity implements View.OnClickListener {
 
-    private boolean click;
-
-    private SpeedTest speedTest;
-    private ArrayList<SpeedTest> arr;
+    @BindView(R.id.btnTest)
     Button btnTest;
-    Button btnShowSpeed;
-    TextView tvDownloadSpeed;
-    TextView tvUploadSpeed;
-    TextView tvPingSpeed;
-    LinearLayout lnSpeed;
+    @BindView(R.id.tv_start_date)
+    TextView tvStartDate;
+    int year, month, day;
+    Date date;
+    BenchMark benchMark;
+
+    SpeedDbHelper dbHelper;
+
+    private final int DATE_PICKER_TO = 0;
+    private final int DATE_PICKER_FROM = 1;
+
+    private long sDate;
+    private long eDate;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_speed_test);
 
-        btnTest = (Button) findViewById(R.id.btnTest);
+        ButterKnife.bind(this);
+
+        dbHelper = new SpeedDbHelper(this);
+
+        benchMark = new BenchMark(this);
+
+        SharedPreferences.Editor pref = this.getSharedPreferences(PrefUtils.PREF_NAME, MODE_PRIVATE).edit();
+        pref.putLong(PrefUtils.PREF_START_DATE, System.currentTimeMillis());
+        pref.apply();
+
+        tvStartDate.setOnClickListener(this);
         btnTest.setOnClickListener(this);
-        btnShowSpeed = (Button) findViewById(R.id.btnShowSpeed);
-        btnShowSpeed.setOnClickListener(this);
 
-        tvDownloadSpeed = (TextView) findViewById(R.id.tv_download_speed);
-        tvUploadSpeed = (TextView) findViewById(R.id.tv_upload_speed);
-        tvPingSpeed = (TextView) findViewById(R.id.tv_ping_speed);
-        lnSpeed = (LinearLayout) findViewById(R.id.ln_speed);
+        SharedPreferences preferences = this.getSharedPreferences(PrefUtils.PREF_NAME, MODE_PRIVATE);
+        sDate = preferences.getLong(PrefUtils.PREF_START_DATE, 0);
+        eDate = preferences.getLong(PrefUtils.PREF_END_DATE, 0);
 
-        speedTest = new SpeedTest();
-        arr = new ArrayList<>();
-
-    }
-
-    private void generateSpeedPerHourly() {
-
-        btnShowSpeed.setVisibility(View.VISIBLE);
-
-        do {
-            Random uploadSpeedRandom = new Random();
-            float uploadSpeed = uploadSpeedRandom.nextFloat() * (100 - 0) + 0;
-            DecimalFormat df = new DecimalFormat("0.00");
-
-            Random downloadSpeedRandom = new Random();
-            float downloadSpeed = downloadSpeedRandom.nextFloat() * (100 - 0) + 0;
-
-            Random pingRandom = new Random();
-            float pingSpeed = pingRandom.nextFloat() * (100 - 0) + 0;
-
-            speedTest.setDownloadSpeed(Float.parseFloat(df.format(downloadSpeed)));
-            speedTest.setUploadSpeed(Float.parseFloat(df.format(uploadSpeed)));
-            speedTest.setPingSpeed(Float.parseFloat(df.format(pingSpeed)));
-
-            arr.add(new SpeedTest(speedTest.getDownloadSpeed(), speedTest.getUploadSpeed(), speedTest.getPingSpeed()));
-        } while (click);
     }
 
     @Override
     public void onClick(View v) {
         int getId = v.getId();
         switch (getId) {
+            case R.id.tv_start_date:
+                showDialog(0);
+                benchMark.setDate(date);
+                break;
             case R.id.btnTest:
-                generateSpeedPerHourly();
-                break;
-            case R.id.btnShowSpeed:
-                click = false;
-                showSpeed();
-                break;
-            default:
+                benchMark.Hourly();
                 break;
         }
+
     }
 
-    private void showSpeed() {
+    @Override
+    @Deprecated
+    protected Dialog onCreateDialog(int id) {
+        Calendar c = Calendar.getInstance();
+        int year = c.get(Calendar.YEAR);
+        int month = c.get(Calendar.MONTH);
+        int day = c.get(Calendar.DAY_OF_MONTH);
+        date = c.getTime();
+        return new DatePickerDialog(this, datePickerListener, year, month, day);
+    }
 
-        lnSpeed.setVisibility(View.VISIBLE);
+    private DatePickerDialog.OnDateSetListener datePickerListener = new DatePickerDialog.OnDateSetListener() {
+        public void onDateSet(DatePicker view, int selectedYear,
+                              int selectedMonth, int selectedDay) {
+            day = selectedDay;
+            month = selectedMonth;
+            year = selectedYear;
+            tvStartDate.setText(selectedDay + " / " + (selectedMonth + 1) + " / "
+                    + selectedYear);
 
-        float dSpeed = 0;
-        float uSpeed = 0;
-        float ping = 0;
-
-        for (int i = 0; i < arr.size(); i++) {
-            dSpeed += arr.get(i).getDownloadSpeed();
-            uSpeed += arr.get(i).getUploadSpeed();
-            ping += arr.get(i).getPingSpeed();
         }
-
-        tvDownloadSpeed.setText(String.valueOf(dSpeed / arr.size()) + " per sec");
-        tvUploadSpeed.setText(String.valueOf(uSpeed / arr.size()) + " per sec");
-        tvPingSpeed.setText(String.valueOf(ping / arr.size()) + " per sec");
-    }
+    };
 
 }
+
+

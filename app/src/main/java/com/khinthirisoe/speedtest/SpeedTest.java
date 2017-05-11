@@ -1,45 +1,42 @@
 package com.khinthirisoe.speedtest;
 
+import java.text.DecimalFormat;
+import java.util.Date;
+import java.util.Random;
+
 /**
  * Created by khinthirisoe on 5/9/17.
  */
 
 public class SpeedTest {
 
-    private float downloadSpeed;
-    private float uploadSpeed;
-    private float pingSpeed;
+    public static float downloadSpeed() {
+        Random downloadSpeedRandom = new Random();
+        float downloadSpeed = downloadSpeedRandom.nextFloat() * (100 - 0) + 0;
+        DecimalFormat df = new DecimalFormat("0.00");
 
-    public SpeedTest() {
+        return Float.parseFloat(df.format(downloadSpeed));
     }
 
-    public float getDownloadSpeed() {
-        return downloadSpeed;
+    public static float uploadSpeed() {
+        Random uploadSpeedRandom = new Random();
+        float downloadSpeed = uploadSpeedRandom.nextFloat() * (100 - 0) + 0;
+        DecimalFormat df = new DecimalFormat("0.00");
+
+        return Float.parseFloat(df.format(downloadSpeed));
     }
 
-    public float getUploadSpeed() {
-        return uploadSpeed;
+    public static float pingSpeed() {
+        Random pingSpeedRandom = new Random();
+        float pingSpeed = pingSpeedRandom.nextFloat() * (100 - 0) + 0;
+        DecimalFormat df = new DecimalFormat("0.00");
+
+        return Float.parseFloat(df.format(pingSpeed));
     }
 
-    public float getPingSpeed() {
-        return pingSpeed;
+    public static Date getDate(){
+        BenchMark benchMark = new BenchMark();
+        return benchMark.getDate();
     }
 
-    public void setDownloadSpeed(float downloadSpeed) {
-        this.downloadSpeed = downloadSpeed;
-    }
-
-    public void setUploadSpeed(float uploadSpeed) {
-        this.uploadSpeed = uploadSpeed;
-    }
-
-    public void setPingSpeed(float pingSpeed) {
-        this.pingSpeed = pingSpeed;
-    }
-
-    public SpeedTest(float downloadSpeed, float uploadSpeed, float pingSpeed) {
-        this.downloadSpeed = downloadSpeed;
-        this.uploadSpeed = uploadSpeed;
-        this.pingSpeed = pingSpeed;
-    }
 }
