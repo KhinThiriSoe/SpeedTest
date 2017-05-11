@@ -1,7 +1,6 @@
 package com.khinthirisoe.speedtest;
 
 import java.text.DecimalFormat;
-import java.util.Date;
 import java.util.Random;
 
 /**
@@ -26,17 +25,11 @@ public class SpeedTest {
         return Float.parseFloat(df.format(downloadSpeed));
     }
 
-    public static float pingSpeed() {
-        Random pingSpeedRandom = new Random();
-        float pingSpeed = pingSpeedRandom.nextFloat() * (100 - 0) + 0;
+    public static float ping() {
+        Random pingRandom = new Random();
+        float ping = pingRandom.nextFloat() * (100 - 0) + 0;
         DecimalFormat df = new DecimalFormat("0.00");
 
-        return Float.parseFloat(df.format(pingSpeed));
+        return Float.parseFloat(df.format(ping));
     }
-
-    public static Date getDate(){
-        BenchMark benchMark = new BenchMark();
-        return benchMark.getDate();
-    }
-
 }
